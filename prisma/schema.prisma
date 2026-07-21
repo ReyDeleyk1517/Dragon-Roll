@@ -20,8 +20,15 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
   sessions      Session[]
   accounts      Account[]
+
+  // Game logic
+  roomsCreated Room[] @relation("RoomCreator")
+  roomMemberships RoomMember[]
+  characters      Character[]
+  messages        ChatMessage[]
 
   @@unique([email])
   @@map("user")
@@ -73,4 +80,224 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+enum CombatantType {
+  PLAYER
+  MONSTER
+}
+
+model Room {
+  id String @id @default(cuid())
+
+  name String
+
+  code String @unique
+
+  isActive Boolean @default(true)
+
+  createdById String
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  createdBy User @relation("RoomCreator", fields: [createdById], references: [id])
+
+  members RoomMember[]
+
+  characters Character[]
+
+  monsterTemplates MonsterTemplate[]
+
+  encounters Encounter[]
+
+  messages ChatMessage[]
+}
+
+model RoomMember {
+  id String @id @default(cuid())
+
+  roomId String
+
+  userId String?
+
+  guestName String?
+
+  isDM Boolean @default(false)
+
+  joinedAt DateTime @default(now())
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+  @@index([roomId])
+  @@index([userId])
+}
+
+model Character {
+  id String @id @default(cuid())
+
+  roomId String
+
+  ownerId String?
+
+  name String
+
+  level Int @default(1)
+
+  armorClass Int
+
+  maxHp Int
+
+  currentHp Int
+
+  initiativeBonus Int
+
+  strength Int
+
+  dexterity Int
+
+  constitution Int
+
+  intelligence Int
+
+  wisdom Int
+
+  charisma Int
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  owner User? @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+
+  entries InitiativeEntry[]
+
+  @@index([roomId])
+  @@index([ownerId])
+}
+
+model MonsterTemplate {
+  id String @id @default(cuid())
+
+  roomId String
+
+  name String
+
+  armorClass Int
+
+  maxHp Int
+
+  initiativeBonus Int
+
+  strength Int
+
+  dexterity Int
+
+  constitution Int
+
+  intelligence Int
+
+  wisdom Int
+
+  charisma Int
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  entries InitiativeEntry[]
+  @@index([roomId])
+}
+
+model Encounter {
+  id String @id @default(cuid())
+
+  roomId String
+
+  name String?
+
+  round Int @default(1)
+
+  currentTurn Int @default(0)
+
+  active Boolean @default(true)
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  entries InitiativeEntry[]
+  @@index([roomId])
+}
+
+model InitiativeEntry {
+  id String @id @default(cuid())
+
+  encounterId String
+
+  type CombatantType
+
+  characterId String?
+
+  monsterTemplateId String?
+
+  displayName String
+
+  initiative Int
+
+  currentHp Int
+
+  maxHp Int
+
+  armorClass Int
+
+  temporaryHp Int @default(0)
+
+  defeated Boolean @default(false)
+
+  concentration Boolean @default(false)
+
+  turnOrder Int?
+
+  encounter Encounter @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+
+  character Character? @relation(fields: [characterId], references: [id], onDelete: SetNull)
+
+  monsterTemplate MonsterTemplate? @relation(fields: [monsterTemplateId], references: [id], onDelete: SetNull)
+
+  conditions Condition[]
+  @@index([encounterId])
+  @@index([characterId])
+  @@index([monsterTemplateId])
+}
+
+model Condition {
+  id String @id @default(cuid())
+
+  initiativeEntryId String
+
+  name String
+
+  duration Int?
+
+  initiativeEntry InitiativeEntry @relation(fields: [initiativeEntryId], references: [id], onDelete: Cascade)
+  @@index([initiativeEntryId])
+}
+
+model ChatMessage {
+  id String @id @default(cuid())
+
+  roomId String
+
+  userId String?
+
+  guestName String?
+
+  message String
+
+  createdAt DateTime @default(now())
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([roomId])
 }
