@@ -5,11 +5,7 @@ import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { generateUniqueRoomCode } from "@/app/room/room-random-code-generator";
-type JoinRoomResult = {
-  success: boolean;
-  message?: string;
-  roomId?: string;
-};
+
 export async function createRoom(formData: FormData) {
   //obtiene la sesion
   const session = await auth.api.getSession({
@@ -71,9 +67,18 @@ export async function joinRoom(formData: FormData) {
     },
   });
 
+  //testear 
+  //if (!room) {
+    //throw new Error("Room not found.");
+  //}
+  //retornar en caso de que no exista sala
   if (!room) {
-    throw new Error("Room not found.");
-    
+    return {
+      success: false,
+      message: 'Room not found.',
+      error: true,
+
+    };
   }
 
   //si el usuario ya entro a esa sala
