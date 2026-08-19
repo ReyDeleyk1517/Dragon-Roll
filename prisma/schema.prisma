@@ -25,10 +25,11 @@ model User {
   accounts      Account[]
 
   // Game logic
-  roomsCreated Room[] @relation("RoomCreator")
-  roomMemberships RoomMember[]
-  characters      Character[]
-  messages        ChatMessage[]
+  roomsCreated     Room[]         @relation("RoomCreator")
+  roomMemberships  RoomMember[]
+  characters       Character[]
+  monsterTemplates MonsterTemplate[]
+  messages         ChatMessage[]
 
   @@unique([email])
   @@map("user")
@@ -140,37 +141,28 @@ model RoomMember {
 model Character {
   id String @id @default(cuid())
 
-  roomId String
-
-  ownerId String?
+  roomId String?
+  ownerId String
 
   name String
 
   level Int @default(1)
 
   armorClass Int
-
   maxHp Int
-
   currentHp Int
-
   initiativeBonus Int
 
   strength Int
-
   dexterity Int
-
   constitution Int
-
   intelligence Int
-
   wisdom Int
-
   charisma Int
 
-  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  room Room? @relation(fields: [roomId], references: [id], onDelete: SetNull)
 
-  owner User? @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   entries InitiativeEntry[]
 
@@ -181,32 +173,30 @@ model Character {
 model MonsterTemplate {
   id String @id @default(cuid())
 
-  roomId String
+  roomId String?
+  ownerId String
 
   name String
 
   armorClass Int
-
   maxHp Int
-
   initiativeBonus Int
 
   strength Int
-
   dexterity Int
-
   constitution Int
-
   intelligence Int
-
   wisdom Int
-
   charisma Int
 
-  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  room Room? @relation(fields: [roomId], references: [id], onDelete: SetNull)
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   entries InitiativeEntry[]
+
   @@index([roomId])
+  @@index([ownerId])
 }
 
 model Encounter {
