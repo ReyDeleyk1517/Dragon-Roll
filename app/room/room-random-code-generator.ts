@@ -1,3 +1,5 @@
+import type { PrismaClient } from "@/src/generated/prisma/client";
+
 function randomCode(length = 6) {
   const chars = "abcdefghyjklmnopqrstuvyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -10,7 +12,7 @@ function randomCode(length = 6) {
   return code;
 }
 
-export async function generateUniqueRoomCode(prisma: any) {
+export async function generateUniqueRoomCode(prisma: PrismaClient) {
   //ciclo que checka si el codigo existe y solo retorna si no se encuentra codigo igual
   while (true) {
     const code = randomCode();

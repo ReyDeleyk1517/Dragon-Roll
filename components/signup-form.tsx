@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { signUp } from "@/lib/auth-client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
@@ -101,8 +102,9 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 <FieldDescription className="px-6 text-center">
                   Already have an account?{" "}
                   <a
+                    className="font-medium text-[var(--ember)] underline-offset-4 hover:underline"
                     onClick={(e) => {
-                      e.preventDefault;
+                      e.preventDefault();
                       router.push("/login");
                     }}
                   >
@@ -113,6 +115,16 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </FieldGroup>
           </FieldGroup>
         </form>
+
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Just here for a session?{" "}
+          <Link
+            href="/"
+            className="font-medium text-[var(--ember)] underline-offset-4 hover:underline"
+          >
+            Join a room as a guest
+          </Link>
+        </p>
       </CardContent>
     </Card>
   );

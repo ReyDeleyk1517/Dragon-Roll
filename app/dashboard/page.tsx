@@ -14,11 +14,15 @@ export default async function Page() {
   }
 
   return (
-    <main className="max-w-5xl mx-auto py-10">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">
-          Welcome {session.user.name}
-        </h1>
+    <main className="max-w-5xl mx-auto py-10 px-6">
+      <div className="flex justify-between items-center gap-4">
+        <div className="flex flex-col gap-3">
+          <h1 className="text-4xl font-semibold tracking-[0.01em]">
+            Welcome {session.user.name}
+          </h1>
+
+          <span className="h-px w-24 bg-gradient-to-r from-[var(--ember)] to-transparent" />
+        </div>
 
         <SignOutButton />
       </div>

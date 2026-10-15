@@ -1,8 +1,8 @@
 "use client";
-import { useState } from "react";
+
 import { useActionState } from "react";
-import { createRoom } from "../actions";
-import { joinRoom } from "../actions";
+
+import { joinRoomAsUser } from "@/app/room/actions";
 import {
   Dialog,
   DialogContent,
@@ -16,20 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function JoinRoomDialog() {
-  const [error, setError]= useState(false);
-  const [message, setMessage]= useState("");
-
-  async function handleSubmit(formData: FormData) {
-    setError(false);
-
-    const result = await joinRoom(formData);
-    console.log(message);
-
-    if (!result.success) {
-      setError(result.error);
-      setMessage(result.message);
-    }
-  }
+  const [state, formAction, isPending] = useActionState(joinRoomAsUser, null);
 
   return (
     <Dialog>
@@ -40,23 +27,20 @@ export default function JoinRoomDialog() {
           <DialogTitle>Join Room</DialogTitle>
         </DialogHeader>
 
-        <form action={handleSubmit} className="space-y-4">
+        <form action={formAction} className="space-y-4">
           <div>
             <Label htmlFor="code">Room code</Label>
 
             <Input id="code" name="code" placeholder="abc1234" required />
           </div>
 
-          <Button type="submit" className="w-full">
-            Join
+          {state?.error ? (
+            <p className="text-sm text-red-500">{state.error}</p>
+          ) : null}
+
+          <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending ? "Joining..." : "Join"}
           </Button>
-          <div>
-            {error ==true ? (
-              <Label className="text-red-500">
-                {message}
-              </Label>
-            ) : null}
-          </div>
         </form>
       </DialogContent>
     </Dialog>

@@ -8,16 +8,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default:
+          "bg-primary text-primary-foreground shadow-[inset_0_1px_0_0_color-mix(in_oklch,white,transparent_65%),0_8px_22px_-12px_color-mix(in_oklch,var(--primary),transparent_25%)] hover:brightness-110 hover:shadow-[inset_0_1px_0_0_color-mix(in_oklch,white,transparent_65%),0_10px_26px_-10px_color-mix(in_oklch,var(--primary),transparent_5%)]",
         outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border-[color-mix(in_oklch,var(--gold),transparent_72%)] bg-transparent text-foreground hover:bg-[color-mix(in_oklch,var(--ember),transparent_90%)] hover:border-[color-mix(in_oklch,var(--ember),transparent_55%)] aria-expanded:bg-[color-mix(in_oklch,var(--ember),transparent_88%)] aria-expanded:text-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "bg-secondary text-secondary-foreground ring-1 ring-inset ring-[color-mix(in_oklch,var(--gold),transparent_84%)] hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_6%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
-          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+          "hover:bg-[color-mix(in_oklch,var(--ember),transparent_91%)] hover:text-foreground aria-expanded:bg-[color-mix(in_oklch,var(--ember),transparent_89%)] aria-expanded:text-foreground",
         destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-destructive/12 text-destructive ring-1 ring-inset ring-destructive/30 hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/25",
+        link: "text-[var(--ember)] underline-offset-4 hover:text-[color-mix(in_oklch,var(--ember),white_22%)] hover:underline",
       },
       size: {
         default:

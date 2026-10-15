@@ -2,9 +2,14 @@
 
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
+import { getOpen5eMonster, searchOpen5eMonsters } from "@/lib/open5e";
 
 const MAX_SLOTS = 5;
+const MIN_SEARCH_LENGTH = 2;
+const MAX_SEARCH_LENGTH = 60;
+const OPEN5E_SLUG_PATTERN = /^[a-z0-9-]+$/i;
 
 async function getCurrentUser() {
   const session = await auth.api.getSession({
@@ -28,10 +33,7 @@ function getNumber(formData: FormData, name: string): number {
   return value;
 }
 
-// ==========================================
 // CHARACTER
-// ==========================================
-
 export async function createCharacter(formData: FormData) {
   const user = await getCurrentUser();
 
@@ -76,6 +78,8 @@ export async function createCharacter(formData: FormData) {
       charisma: getNumber(formData, "charisma"),
     },
   });
+
+  revalidatePath("/characters");
 
   return {
     success: true,
@@ -132,15 +136,15 @@ export async function updateCharacter(
     },
   });
 
+  revalidatePath("/characters");
+
   return {
     success: true,
     character: updatedCharacter,
   };
 }
 
-// ==========================================
 // MONSTER
-// ==========================================
 
 export async function createMonster(formData: FormData) {
   const user = await getCurrentUser();
@@ -182,6 +186,8 @@ export async function createMonster(formData: FormData) {
       charisma: getNumber(formData, "charisma"),
     },
   });
+
+  revalidatePath("/characters");
 
   return {
     success: true,
@@ -234,8 +240,97 @@ export async function updateMonster(
     },
   });
 
+  revalidatePath("/characters");
+
   return {
     success: true,
     monster: updatedMonster,
   };
+}
+
+// DELETE
+
+export async function deleteCharacter(characterId: string) {
+  const user = await getCurrentUser();
+
+  if (typeof characterId !== "string" || !characterId) {
+    throw new Error("Invalid character.");
+  }
+
+  const character = await prisma.character.findFirst({
+    where: {
+      id: characterId,
+      ownerId: user.id,
+    },
+  });
+
+  if (!character) {
+    throw new Error("Character not found.");
+  }
+
+  await prisma.character.delete({
+    where: {
+      id: characterId,
+    },
+  });
+
+  revalidatePath("/characters");
+
+  return { success: true };
+}
+
+export async function deleteMonster(monsterId: string) {
+  const user = await getCurrentUser();
+
+  if (typeof monsterId !== "string" || !monsterId) {
+    throw new Error("Invalid monster.");
+  }
+
+  const monster = await prisma.monsterTemplate.findFirst({
+    where: {
+      id: monsterId,
+      ownerId: user.id,
+    },
+  });
+
+  if (!monster) {
+    throw new Error("Monster not found.");
+  }
+
+  await prisma.monsterTemplate.delete({
+    where: {
+      id: monsterId,
+    },
+  });
+
+  revalidatePath("/characters");
+
+  return { success: true };
+}
+
+// OPEN5E LIBRARY
+
+export async function searchMonsterLibrary(query: string) {
+  await getCurrentUser();
+
+  const term =
+    typeof query === "string"
+      ? query.trim().slice(0, MAX_SEARCH_LENGTH)
+      : "";
+
+  if (term.length < MIN_SEARCH_LENGTH) {
+    return [];
+  }
+
+  return searchOpen5eMonsters(term);
+}
+
+export async function loadMonsterFromLibrary(slug: string) {
+  await getCurrentUser();
+
+  if (typeof slug !== "string" || !OPEN5E_SLUG_PATTERN.test(slug)) {
+    throw new Error("Invalid monster reference.");
+  }
+
+  return getOpen5eMonster(slug);
 }
